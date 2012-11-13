@@ -1,5 +1,7 @@
 module Foobar
   class Foo < Sinatra::Base
+    set :root, File.dirname(Dashboard::ROOT)
+    set :public, Proc.new { File.join(root, "public") }
     
     #configure do
       # set app specific settings
@@ -7,7 +9,7 @@ module Foobar
     #end
     
     get '/' do
-      "Hello from foo"
+      "Hello from foo, ROOT is #{settings.root}"
     end
     
     # I did this to be able to wrap my app in Rack::Auth::Digest for example
