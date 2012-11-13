@@ -1,3 +1,5 @@
 .rvmrc
 *~
-
+*.lock
+*.log
+coverage
