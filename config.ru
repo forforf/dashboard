@@ -6,7 +6,7 @@ end
 require Dashboard::ROOT + '/config/boot.rb'
 
 
-run Rack::URLMap.new({
-  "/"    => Foobar::Foo,
-  "/bar" => Foobar::Bar
-})
+#run Rack::URLMap.new({
+#  "/dashboard"    => Dashboard::Server
+#   "/bar" => Foobar::Bar
+#})
