@@ -7,8 +7,8 @@ d3DemoApp = angular.module("d3DemoApp", [])
 d3DemoApp.controller "AppCtrl", AppCtrl = ($scope, $http) ->
   
   # initialize the model
-  $scope.user = "angular"
-  $scope.repo = "angular.js"
+  $scope.user = "forforf"
+  $scope.repo = "code_thoughts"
   
   # helper for formatting date
   humanReadableDate = (d) ->

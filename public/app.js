@@ -8,8 +8,8 @@
 
   d3DemoApp.controller("AppCtrl", AppCtrl = function($scope, $http) {
     var humanReadableDate, reformatGithubResponse;
-    $scope.user = "angular";
-    $scope.repo = "angular.js";
+    $scope.user = "forforf";
+    $scope.repo = "code_thoughts";
     humanReadableDate = function(d) {
       return d.getUTCMonth() + "/" + d.getUTCDate();
     };
