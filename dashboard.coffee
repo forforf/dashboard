@@ -1,26 +1,16 @@
-express    = require 'express'
-feedparser = require 'feedparser'
-request    = require 'request'
-yaml       = require 'js-yaml'
+express      = require 'express'
+YamlFromAtom = require('./lib/yaml_from_atom').YamlFromAtom
 
 server =
   config:
     port: 3000
 
-items =
-  repo:
-    wiki_rss: 
-      uri: "https://github.com/forforf/code_thoughts/wiki.atom"
-    status_label: "Status"
-
-find_status = (feed) ->
-  if feed.title is items.repo.status_label
-    content = feed['atom:content']['#']
-    yaml_content = content.split("---")[1]
-    console.log yaml.load(yaml_content)
-
-request items.repo.wiki_rss, (err, resp, body)  ->
-  feedparser.parseString(body).on('article', find_status)    
+#dbs =
+#  repos:
+#    code_thoughts: 
+#      uri: "https://github.com/forforf/code_thoughts/wiki.atom"
+#      label: "Status"
+  
 
 s = express()
 
@@ -28,9 +18,18 @@ s.get '/', (req, res) ->
   res.send 'Hello Express World'
 
 s.get '/test', (req, res) ->
+  yaml_req = {uri: req.query.uri, label: req.query.label}
+  parser = new YamlFromAtom(yaml_req)
+  parsing = parser.get()
+  parsing.on "yamlAtomDo", (o) ->
+    res.json(o)
+  
   
 
 s.use express.static(__dirname + '/public')
 
-#s.listen(server.config.port)
-#console.log 'Dashboard listening on port %s', server.config.port
+s.listen(server.config.port)
+console.log 'Dashboard listening on port %s', server.config.port
+
+
+

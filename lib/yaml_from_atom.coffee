@@ -28,36 +28,24 @@ class YamlFromAtom extends EventEmitter
 
         #emit the article
         @emit "article", art
-
-        #article is the one with the yaml
+        
+        final_obj = null
+        #find the article title with the yaml
         if art.title is atom_yaml_req.label
 
-          ## emit article type and content
-          # type = art["atom:content"]["@"]
-          # content = art["atom:content"]["#"]
-          # @emit "type", type
-          # @emit "content", content
-
-          ## emit yaml string
-          # yaml_content = content.split("---")[1]
-          # @emit "yaml", yaml_content
+          content = art["atom:content"]["#"]
+          yaml_content = content.split("---")[1]
 
           #emit parsed yaml (javascript object)
           final_obj = yaml.load(yaml_content)
+
+        else
+          final_obj = "#{atom_yaml_req.label} not found in article: #{art.title}"
+
+        if final_obj
           @emit "yamlAtomDo", final_obj
-
-
-scorecard_request = 
-  uri:"https://github.com/forforf/code_thoughts/wiki.atom"
-  label: "Status"
-
-test = (new YamlFromAtom(scorecard_request).get()
-
-test.on "article" ->
-  console.log "OK"
-
-test.on "yamlAtomDo", (yaml_obj) ->
-  console.log yaml_obj
+        else
+          @emit "error", "YamlFromAtom never set the return object"
 
 root.YamlFromAtom = YamlFromAtom 
 
