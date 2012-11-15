@@ -74,6 +74,10 @@ d3DemoApp.controller "AppCtrl", AppCtrl = ($scope, $http) ->
     formattedData
 
   $scope.getCommitData = ->
+    $scope.test =
+      repo_data: 
+        uri: "https://github.com/#{$scope.user}/#{$scope.repo}/wiki.atom"
+        label: "Status"
     
     # attach this data to the scope
     
@@ -83,6 +87,8 @@ d3DemoApp.controller "AppCtrl", AppCtrl = ($scope, $http) ->
       url: "https://api.github.com/repos/" + $scope.user + "/" + $scope.repo + "/commits"
     ).success((data) ->
       $scope.data = reformatGithubResponse(data)
+      $scope.test.data = $scope.data
+      console.log $scope.test
       $scope.error = ""
     ).error (data, status) ->
       if status is 404
@@ -90,6 +96,19 @@ d3DemoApp.controller "AppCtrl", AppCtrl = ($scope, $http) ->
       else
         $scope.error = "Error: " + status
 
+    $http(
+      method: "GET"
+      url: "http://localhost:3000/test"
+      params: $scope.test.repo_data
+    ).success((data) ->
+      $scope.test.scorecard = data
+      console.log $scope.test
+      $scope.error = ""
+    ).error (data, status) ->
+      if status is 404
+        $scope.error = "Wiki atom parser does not exist"
+      else
+        $scope.error = "Error: " + status
 
   
   # get the commit data immediately

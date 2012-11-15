@@ -68,15 +68,38 @@
       return formattedData;
     };
     $scope.getCommitData = function() {
-      return $http({
+      $scope.test = {
+        repo_data: {
+          uri: "https://github.com/" + $scope.user + "/" + $scope.repo + "/wiki.atom",
+          label: "Status"
+        }
+      };
+      $http({
         method: "GET",
         url: "https://api.github.com/repos/" + $scope.user + "/" + $scope.repo + "/commits"
       }).success(function(data) {
         $scope.data = reformatGithubResponse(data);
+        $scope.test.data = $scope.data;
+        console.log($scope.test);
         return $scope.error = "";
       }).error(function(data, status) {
         if (status === 404) {
           return $scope.error = "That repository does not exist";
+        } else {
+          return $scope.error = "Error: " + status;
+        }
+      });
+      return $http({
+        method: "GET",
+        url: "http://localhost:3000/test",
+        params: $scope.test.repo_data
+      }).success(function(data) {
+        $scope.test.scorecard = data;
+        console.log($scope.test);
+        return $scope.error = "";
+      }).error(function(data, status) {
+        if (status === 404) {
+          return $scope.error = "Wiki atom parser does not exist";
         } else {
           return $scope.error = "Error: " + status;
         }
