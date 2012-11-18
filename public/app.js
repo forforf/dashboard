@@ -2,9 +2,59 @@
 (function() {
   "use strict";
 
-  var AppCtrl, d3DemoApp;
+  var AppCtrl, RepoCtrl, d3DemoApp, makeChart;
 
   d3DemoApp = angular.module("d3DemoApp", []);
+
+  makeChart = function(data) {
+    var bar_data, cat_data, cat_name, chart, chart_scale, chart_width;
+    chart_width = 240;
+    chart_scale = d3.scale.linear().domain([0, 10]).range([0, chart_width]);
+    bar_data = [];
+    for (cat_name in data) {
+      cat_data = data[cat_name];
+      if (cat_data.score) {
+        bar_data.push(cat_data.score);
+      }
+    }
+    console.log("Chart data", bar_data);
+    chart = d3.select('#repo').append('svg').attr("class", "chart").attr("width", chart_width).attr("height", 15 * bar_data.length);
+    return chart.selectAll("rect").data(bar_data).enter().append("rect").attr("y", function(d, i) {
+      return i * 15;
+    }).attr("width", chart_scale).attr("height", 15);
+  };
+
+  d3DemoApp.controller("RepoCtrl", RepoCtrl = function($scope, $http) {
+    var repo;
+    $scope.user = "forforf";
+    repo = $scope.repo = {};
+    repo.name = "Code Thoughts";
+    repo.loc = "code_thoughts";
+    $scope.getRepoData = function() {
+      $scope.test = {
+        repo_data: {
+          uri: "https://github.com/" + $scope.user + "/" + $scope.repo.loc + "/wiki.atom",
+          label: "Status"
+        }
+      };
+      return $http({
+        method: "GET",
+        url: "http://localhost:3000/test",
+        params: $scope.test.repo_data
+      }).success(function(data) {
+        $scope.repo.scorecard = data;
+        makeChart(data);
+        return $scope.error = "";
+      }).error(function(data, status) {
+        if (status === 404) {
+          return $scope.error = "Wiki atom parser does not exist";
+        } else {
+          return $scope.error = "Error: " + status;
+        }
+      });
+    };
+    return $scope.getRepoData();
+  });
 
   d3DemoApp.controller("AppCtrl", AppCtrl = function($scope, $http) {
     var humanReadableDate, reformatGithubResponse;

@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="./app.css">
   </head>
 <body ng-controller="AppCtrl">
+  <h1>Dashboard Sandbox </h1>
+  <div ng-controller="RepoCtrl">
+    <p>{{repo}}</p>
+    <p> --- </p>
+    <div id="repo">
+
+    </div>
+  </div>
+
+
+
+  
   <h1>Github Commit Graph</h1>
   
   <form ng-submit="getCommitData()">

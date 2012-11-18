@@ -3,6 +3,78 @@
 # create module for custom directives
 d3DemoApp = angular.module("d3DemoApp", [])
 
+#Make the chart
+makeChart = (data) ->
+  chart_width = 240
+
+  chart_scale = d3.scale.linear()
+    .domain([0,10])
+    .range([0, chart_width])
+
+  bar_data = []
+  for cat_name, cat_data of data
+    bar_data.push cat_data.score if cat_data.score
+  console.log "Chart data", bar_data
+  chart = d3.select('#repo').append('svg')
+    .attr("class", "chart")
+    .attr("width", chart_width)
+    .attr("height", 15*bar_data.length)
+
+  chart.selectAll("rect")
+    .data(bar_data)
+    .enter().append("rect")
+      .attr("y", (d,i)-> 
+        return i*15 )
+      .attr("width", chart_scale)
+      .attr("height", 15)
+
+#dashboard - repo controller
+d3DemoApp.controller "RepoCtrl", RepoCtrl = ($scope, $http) ->
+  # initialize the model
+  $scope.user = "forforf"
+  repo = $scope.repo = {}
+  repo.name = "Code Thoughts"
+  repo.loc  = "code_thoughts"
+
+  $scope.getRepoData = ->
+    $scope.test =
+      repo_data: 
+        uri: "https://github.com/#{$scope.user}/#{$scope.repo.loc}/wiki.atom"
+        label: "Status"
+
+    $http(
+      method: "GET"
+      url: "http://localhost:3000/test"
+      params: $scope.test.repo_data
+    ).success((data) ->
+      $scope.repo.scorecard = data
+      makeChart(data)
+      #console.log "repo controller", $scope.test
+      $scope.error = ""
+    ).error (data, status) ->
+      if status is 404
+        $scope.error = "Wiki atom parser does not exist"
+      else
+        $scope.error = "Error: " + status
+
+  # get the commit data immediately
+  $scope.getRepoData()
+
+
+
+
+#d3DemoApp.directive "repoStatus", ->
+#  restrict: "E"
+#  replace: true
+#  link: (scope, element, attrs) ->
+#    #watch repo, and when it changes run function
+#    scope.$watch 'repo.scorecard', (val) ->
+#      console.log element
+      
+
+  
+  
+################################################################
 # controller business logic
 d3DemoApp.controller "AppCtrl", AppCtrl = ($scope, $http) ->
   
