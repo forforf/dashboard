@@ -7,21 +7,35 @@
   d3DemoApp = angular.module("d3DemoApp", []);
 
   makeChart = function(data) {
-    var bar_data, cat_data, cat_name, chart, chart_scale, chart_width;
-    chart_width = 240;
-    chart_scale = d3.scale.linear().domain([0, 10]).range([0, chart_width]);
+    var bar_data, cat_data, cat_name, chart, chart_width, test, x_scaler;
+    chart_width = document.getElementById('repos').offsetWidth;
+    console.log("Testing", test);
+    x_scaler = d3.scale.linear().domain([0, 10]).range([0, chart_width]);
     bar_data = [];
     for (cat_name in data) {
       cat_data = data[cat_name];
       if (cat_data.score) {
-        bar_data.push(cat_data.score);
+        bar_data.push({
+          name: cat_name,
+          score: cat_data.score
+        });
       }
     }
+    test = d3.select('.test').style("background-color");
+    console.log('test chart', test);
     console.log("Chart data", bar_data);
-    chart = d3.select('#repo').append('svg').attr("class", "chart").attr("width", chart_width).attr("height", 15 * bar_data.length);
-    return chart.selectAll("rect").data(bar_data).enter().append("rect").attr("y", function(d, i) {
-      return i * 15;
-    }).attr("width", chart_scale).attr("height", 15);
+    chart = d3.select('#repos').append('svg').attr("class", "chart").attr("height", 15 * bar_data.length);
+    chart.attr("width", chart_width);
+    chart.selectAll("rect.repo-chart-bg").data(bar_data).enter().append("rect").attr("class", "bars").attr("y", function(d, i) {
+      return i * 16;
+    }).attr("width", function(d) {
+      return x_scaler(d.score);
+    }).attr("height", 16);
+    return chart.selectAll("text").data(bar_data).enter().append("text").attr("x", 0).attr("y", function(d, i) {
+      return 16 * i;
+    }).attr("dy", 10).attr("text-anchor", "left").attr("style", "font-size: 12; font-family: Arial, sans-serif").attr("fill", "#2020DD").text(function(d) {
+      return d.name;
+    }).attr("transform", "translate(8,0)").attr("class", "labels");
   };
 
   d3DemoApp.controller("RepoCtrl", RepoCtrl = function($scope, $http) {

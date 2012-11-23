@@ -5,28 +5,69 @@ d3DemoApp = angular.module("d3DemoApp", [])
 
 #Make the chart
 makeChart = (data) ->
-  chart_width = 240
+  #chart_width = d3.select('#repos').style("width") # 240
+  #used to get the raw pixels, so styling can be in em or %
+  chart_width = document.getElementById('repos').offsetWidth;
 
-  chart_scale = d3.scale.linear()
+  console.log "Testing", test
+
+  #scale x
+  x_scaler = d3.scale.linear()
     .domain([0,10])
     .range([0, chart_width])
 
   bar_data = []
   for cat_name, cat_data of data
-    bar_data.push cat_data.score if cat_data.score
-  console.log "Chart data", bar_data
-  chart = d3.select('#repo').append('svg')
-    .attr("class", "chart")
-    .attr("width", chart_width)
-    .attr("height", 15*bar_data.length)
+    if cat_data.score
+      bar_data.push {name: cat_name, score: cat_data.score}
 
-  chart.selectAll("rect")
+
+  #test getting css attribute
+  test = d3.select('.test').style("background-color")
+  console.log 'test chart', test
+
+
+# html
+#chart = d3.select("#repos").append("div").attr("class", "chart")
+
+#chart.selectAll("div")
+#  .data(bar_data)
+#  .enter().append("div")
+#  .style("width", (d) -> d.score*10 + "px")
+#  .text((d) -> d.name)
+
+# svg
+  console.log "Chart data", bar_data
+  chart = d3.select('#repos').append('svg')
+    .attr("class", "chart")
+    .attr("height", 15*bar_data.length)
+  
+  #sets the width, not strictly necessary, but helpful when reading the html
+  chart.attr("width", chart_width)
+
+
+  chart.selectAll("rect.repo-chart-bg")
     .data(bar_data)
     .enter().append("rect")
+      .attr("class", "bars")
       .attr("y", (d,i)-> 
-        return i*15 )
-      .attr("width", chart_scale)
-      .attr("height", 15)
+        return i*16 )
+      .attr("width", (d) -> x_scaler(d.score))
+      .attr("height", 16)
+      #.attr("transform", "translate(0,0)")
+
+  chart.selectAll("text")
+    .data(bar_data)
+    .enter().append("text")
+      .attr("x", 0)
+      .attr("y", (d,i) -> 16*i)
+      .attr("dy", 10)
+      .attr("text-anchor", "left")
+      .attr("style", "font-size: 12; font-family: Arial, sans-serif")
+      .attr("fill", "#2020DD")
+      .text( (d) ->  d.name )
+      .attr("transform", "translate(8,0)")
+      .attr("class", "labels")
 
 #dashboard - repo controller
 d3DemoApp.controller "RepoCtrl", RepoCtrl = ($scope, $http) ->

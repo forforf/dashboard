@@ -10,11 +10,11 @@
   </head>
 <body ng-controller="AppCtrl">
   <h1>Dashboard Sandbox </h1>
+  <div class="test">Test</div>
   <div ng-controller="RepoCtrl">
     <p>{{repo}}</p>
     <p> --- </p>
-    <div id="repo">
-
+    <div id="repos" >
     </div>
   </div>
 
@@ -22,6 +22,7 @@
 
   
   <h1>Github Commit Graph</h1>
+
   
   <form ng-submit="getCommitData()">
     User: <input ng-model="user"></input>

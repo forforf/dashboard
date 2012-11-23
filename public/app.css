@@ -7,6 +7,7 @@ body {
 .label {
   font-size: .65em;
 }
+
 body {
   width: 960px;
   margin: auto;
@@ -20,18 +21,22 @@ h1 {
   color: red;
 }
 
-/*
-.chart div {
-  font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
+.chart {
+  background-color: #eef;
+  display: inline-block;
 }
-*/
 
-.chart rect {
-  stroke: white;
-  fill: steelblue;
+.chart.bg{
+  fill: red;
 }
+
+.chart .bars {
+  stroke: #ccf;
+  fill: #ddddff;
+  transform: "translate(32,0)";
+}
+
+#repos {
+  width: 20%
+}
+
