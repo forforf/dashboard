@@ -159,38 +159,28 @@ class StatusGraph
       .attr("height", @chart_height)
       .style("fill", "url(#bg_gradient)")
 
-    self = @
     chart.selectAll("rect.repo-chart-bg")
       .data(@bar_data)
       .enter().append("rect")
         .attr("class", "bars")
-        .attr("y", (d,i)-> 
-          return i*self.sizing.bar_height )
-        .attr("width", (d) ->
-          self.scaler(d.score))
-
-        .attr("height", self.sizing.bar_height)
-        .style("fill", (d,i) -> 
-           #console.log "fill-", d, i
-           #console.log "url(#gradient-#{d.score})"
-           return "url(#gradient-#{d.score})")
+        .attr("y", (d,i) => i*@sizing.bar_height )
+        .attr("width", (d) => @scaler(d.score))
+        .attr("height", @sizing.bar_height)
+        .style("fill", (d,i) => "url(#gradient-#{d.score})")
          #.attr("transform", "translate(0,0)")
 
     chart.selectAll("text")
       .data(@bar_data)
       .enter().append("text")
         .attr("x", 0)
-        .attr("y", (d,i) -> self.sizing.bar_height*i)
+        .attr("y", (d,i) => @sizing.bar_height*i)
       .attr("dy", 10)
       .attr("text-anchor", "left")
-      .attr("style", "font-size: #{self.text.font_size}; font-family: Arial, sans-serif")
-      .attr("fill", self.text.color)
-      .text( (d) ->  d.name )
+      .attr("style", "font-size: #{@text.font_size}; font-family: Arial, sans-serif")
+      .attr("fill", @text.color)
+      .text( (d) =>  d.name )
       .attr("transform", "translate(8,1)")
       .attr("class", "labels")
-
-
-  
 
 root.StatusGraph = StatusGraph
 

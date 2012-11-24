@@ -8,38 +8,6 @@
 
   StatusGraph = root.StatusGraph;
 
-  console.log("SG", StatusGraph);
-
-  /*
-  #helpers
-  #  choose depth (step) color between min and max, out of maxDepth steps
-  interpolateColor = (minColor,maxColor,maxDepth,depth) ->
-      d2h = (d)-> return d.toString(16)
-      h2d = (h)-> return parseInt(h,16)
-     
-  
-      if depth is 0
-        return minColor
-  
-      if depth is maxDepth
-          return maxColor
-     
-      color = "#"
-     
-      for i in [1..6] by 2             #(var i=1; i <= 6; i+=2){
-          minVal = new Number(h2d(minColor.substr(i,2)))
-          maxVal = new Number(h2d(maxColor.substr(i,2)))
-          nVal = minVal + (maxVal-minVal) * (depth/maxDepth)
-          val = d2h(Math.floor(nVal))
-          while val.length < 2
-              val = "0"+val
-          
-          color += val
-      
-      return color
-  */
-
-
   d3DemoApp = angular.module("d3DemoApp", []);
 
   makeChart = function(data) {
@@ -47,133 +15,6 @@
     chart = new StatusGraph(d3.select('#repos'), data);
     return chart.svg();
   };
-
-  /*
-    ## chart configuration
-  
-    #   width comes from computed style (can be set in css file)
-    chart_width = document.getElementById('repos').offsetWidth;
-    bar_height = 16 #px
-    gradient_start_color = "#cc8282" 
-    gradient_stop_color = "#22ff22"  
-    bg_start_color = interpolateColor("#ffffff", gradient_start_color, 4,1)
-    bg_stop_color = interpolateColor("#ffffff", gradient_stop_color, 4,1)
-    max_color_steps = 10
-    text_color = "#003300"
-    
-  
-  
-    #scale x
-    x_scaler = d3.scale.linear()
-      .domain([0,10])
-      .range([0, chart_width])
-  
-    bar_data = []
-    for cat_name, cat_data of data
-      if cat_data.score
-        bar_data.push {name: cat_name, score: cat_data.score}
-  
-  
-    #test getting css attribute
-    test = d3.select('.test').style("background-color")
-    console.log 'test chart', test
-  
-  
-  # svg
-    console.log "Chart data", bar_data
-    chart = d3.select('#repos').append('svg:svg')
-  
-    gradient_defs = chart.append("svg:defs")
-    
-  
-    bg_gradient = gradient_defs.append("svg:linearGradient")
-      .attr("id", "bg_gradient")
-      .attr("x1", "0%")
-      .attr("y1", "0%")
-      .attr("x2", "100%")
-      .attr("y2", "0%")
-      .attr("spreadMethod", "pad")
-  
-    #start color
-    bg_gradient.append("svg:stop")
-      .attr("offset", "0%")
-      .attr("stop-color", bg_start_color)
-      .attr("stop-opacity", 1)
-  
-    #default stop
-    bg_gradient.append("svg:stop")
-      .attr("offset", "100%")
-      .attr("stop-opacity", 1)
-      .attr("stop-color", bg_stop_color )
-  
-    iters = [0..max_color_steps]
-    gradients = []
-    for i in iters
-      console.log i
-  
-      #gradients[i] = chart.append("svg:defs")
-      gradients[i] = gradient_defs.append("svg:linearGradient")
-        .attr("id", "gradient-#{i}")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "0%")
-        .attr("spreadMethod", "pad")
-  
-      #start color
-      gradients[i].append("svg:stop")
-        .attr("offset", "0%")
-        .attr("stop-color", gradient_start_color)
-        .attr("stop-opacity", 1)
-  
-      #default stop
-      gradients[i].append("svg:stop")
-        .attr("offset", "100%")
-        .attr("stop-opacity", 1)
-        .attr("stop-color", interpolateColor(gradient_start_color, gradient_stop_color, max_color_steps, i) )
-   
-  
-    chart.attr("class", "chart")
-      .attr("height", bar_height*bar_data.length)
-    
-    #sets the width, not strictly necessary, but helpful when reading the html
-    chart.attr("width", chart_width)
-  
-    chart.append("rect")
-      .attr("class", "bg")
-      .attr("width", chart_width)
-      .attr("height", bar_height*bar_data.length)
-      .style("fill", "url(#bg_gradient)")
-  
-  
-    chart.selectAll("rect.repo-chart-bg")
-      .data(bar_data)
-      .enter().append("rect")
-        .attr("class", "bars")
-        .attr("y", (d,i)-> 
-          return i*bar_height )
-        .attr("width", (d) -> x_scaler(d.score))
-        .attr("height", bar_height)
-        .style("fill", (d,i) -> 
-           console.log "fill-", d, i
-           console.log "url(#gradient-#{d.score})"
-           return "url(#gradient-#{d.score})")
-        #.attr("transform", "translate(0,0)")
-  
-    chart.selectAll("text")
-      .data(bar_data)
-      .enter().append("text")
-        .attr("x", 0)
-        .attr("y", (d,i) -> 16*i)
-        .attr("dy", 10)
-        .attr("text-anchor", "left")
-        .attr("style", "font-size: 12; font-family: Arial, sans-serif")
-        .attr("fill", text_color)
-        .text( (d) ->  d.name )
-        .attr("transform", "translate(8,1)")
-        .attr("class", "labels")
-  */
-
 
   d3DemoApp.controller("RepoCtrl", RepoCtrl = function($scope, $http) {
     var repo;
@@ -309,134 +150,139 @@
     return $scope.getCommitData();
   });
 
-  d3DemoApp.directive("ghVisualization", function() {
-    var color, height, margin, width;
-    margin = 20;
-    width = 960;
-    height = 500 - .5 - margin;
-    color = d3.interpolateRgb("#f77", "#77f");
-    return {
-      restrict: "E",
-      terminal: true,
-      scope: {
-        val: "=",
-        grouped: "="
-      },
-      link: function(scope, element, attrs) {
-        var vis;
-        vis = d3.select(element[0]).append("svg").attr("width", width).attr("height", height + margin + 100);
-        return scope.$watch("val", function(newVal, oldVal) {
-          var bars, data, keySwatches, keyText, labels, layers, m, mx, my, mz, n, transitionGroup, transitionStack, x, y0, y1, y2;
-          transitionGroup = function() {
-            var transitionEnd;
-            transitionEnd = function() {
-              return d3.select(this).transition().duration(500).attr("y", function(d) {
-                return height - y2(d);
-              }).attr("height", y2);
-            };
-            return vis.selectAll("g.layer rect").transition().duration(500).delay(function(d, i) {
-              return (i % m) * 10;
-            }).attr("x", function(d, i) {
-              return x({
-                x: .9 * ~~(i / m) / n
-              });
-            }).attr("width", x({
-              x: .9 / n
-            })).each("end", transitionEnd);
-          };
-          transitionStack = function() {
-            var transitionEnd;
-            transitionEnd = function() {
-              return d3.select(this).transition().duration(500).attr("x", 0).attr("width", x({
-                x: .9
-              }));
-            };
-            return vis.selectAll("g.layer rect").transition().duration(500).delay(function(d, i) {
-              return (i % m) * 10;
-            }).attr("y", y1).attr("height", function(d) {
-              return y0(d) - y1(d);
-            }).each("end", transitionEnd);
-          };
-          vis.selectAll("*").remove();
-          if (!newVal) {
-            return;
-          }
-          n = newVal.length;
-          m = newVal[0].length;
-          data = d3.layout.stack()(newVal);
-          mx = m;
-          my = d3.max(data, function(d) {
-            return d3.max(d, function(d) {
-              return d.y0 + d.y;
-            });
-          });
-          mz = d3.max(data, function(d) {
-            return d3.max(d, function(d) {
-              return d.y;
-            });
-          });
-          x = function(d) {
-            return d.x * width / mx;
-          };
-          y0 = function(d) {
-            return height - d.y0 * height / my;
-          };
-          y1 = function(d) {
-            return height - (d.y + d.y0) * height / my;
-          };
-          y2 = function(d) {
-            return d.y * height / mz;
-          };
-          layers = vis.selectAll("g.layer").data(data).enter().append("g").style("fill", function(d, i) {
-            return color(i / (n - 1));
-          }).attr("class", "layer");
-          bars = layers.selectAll("g.bar").data(function(d) {
-            return d;
-          }).enter().append("g").attr("class", "bar").attr("transform", function(d) {
-            return "translate(" + x(d) + ",0)";
-          });
-          bars.append("rect").attr("width", x({
-            x: .9
-          })).attr("x", 0).attr("y", height).attr("height", 0).transition().delay(function(d, i) {
-            return i * 10;
-          }).attr("y", y1).attr("height", function(d) {
-            return y0(d) - y1(d);
-          });
-          labels = vis.selectAll("text.label").data(data[0]).enter().append("text").attr("class", "label").attr("x", x).attr("y", height + 6).attr("dx", x({
-            x: .45
-          })).attr("dy", ".71em").attr("text-anchor", "middle").text(function(d, i) {
-            return d.date;
-          });
-          keyText = vis.selectAll("text.key").data(data).enter().append("text").attr("class", "key").attr("y", function(d, i) {
-            return height + 42 + 30 * (i % 3);
-          }).attr("x", function(d, i) {
-            return 155 * Math.floor(i / 3) + 15;
-          }).attr("dx", x({
-            x: .45
-          })).attr("dy", ".71em").attr("text-anchor", "left").text(function(d, i) {
-            return d[0].user;
-          });
-          keySwatches = vis.selectAll("rect.swatch").data(data).enter().append("rect").attr("class", "swatch").attr("width", 20).attr("height", 20).style("fill", function(d, i) {
-            return color(i / (n - 1));
-          }).attr("y", function(d, i) {
-            return height + 36 + 30 * (i % 3);
-          }).attr("x", function(d, i) {
-            return 155 * Math.floor(i / 3);
-          });
-          scope.grouped = false;
-          return scope.$watch("grouped", function(newVal, oldVal) {
-            if (newVal === oldVal) {
-              return;
-            }
-            if (newVal) {
-              return transitionGroup();
-            } else {
-              return transitionStack();
-            }
-          });
-        });
-      }
-    };
-  });
+  /*
+  d3DemoApp.directive "ghVisualization", ->
+    
+    # constants
+    margin = 20
+    width = 960
+    height = 500 - .5 - margin
+    color = d3.interpolateRgb("#f77", "#77f")
+    restrict: "E"
+    terminal: true
+    scope:
+      val: "="
+      grouped: "="
+  
+    link: (scope, element, attrs) ->
+      
+      # set up initial svg object
+      vis = d3.select(element[0]).append("svg").attr("width", width).attr("height", height + margin + 100)
+      scope.$watch "val", (newVal, oldVal) ->
+        
+        # clear the elements inside of the directive
+        
+        # if 'val' is undefined, exit
+        
+        # Based on: http://mbostock.github.com/d3/ex/stack.html
+        # number of layers
+        # number of samples per layer
+        # or `my` not rescale
+        
+        # Layers for each color
+        # =====================
+        
+        # Bars
+        # ====
+        
+        # X-axis labels
+        # =============
+        
+        # Chart Key
+        # =========
+        
+        # Animate between grouped and stacked
+        # ===================================
+        transitionGroup = ->
+          transitionEnd = ->
+            d3.select(this).transition().duration(500).attr("y", (d) ->
+              height - y2(d)
+            ).attr "height", y2
+          vis.selectAll("g.layer rect").transition().duration(500).delay((d, i) ->
+            (i % m) * 10
+          ).attr("x", (d, i) ->
+            x x: .9 * ~~(i / m) / n
+          ).attr("width", x(x: .9 / n)).each "end", transitionEnd
+        transitionStack = ->
+          transitionEnd = ->
+            d3.select(this).transition().duration(500).attr("x", 0).attr "width", x(x: .9)
+          vis.selectAll("g.layer rect").transition().duration(500).delay((d, i) ->
+            (i % m) * 10
+          ).attr("y", y1).attr("height", (d) ->
+            y0(d) - y1(d)
+          ).each "end", transitionEnd
+        vis.selectAll("*").remove()
+        return  unless newVal
+        n = newVal.length
+        m = newVal[0].length
+        data = d3.layout.stack()(newVal)
+        mx = m
+        my = d3.max(data, (d) ->
+          d3.max d, (d) ->
+            d.y0 + d.y
+  
+        )
+        mz = d3.max(data, (d) ->
+          d3.max d, (d) ->
+            d.y
+  
+        )
+        x = (d) ->
+          d.x * width / mx
+  
+        y0 = (d) ->
+          height - d.y0 * height / my
+  
+        y1 = (d) ->
+          height - (d.y + d.y0) * height / my
+  
+        y2 = (d) ->
+          d.y * height / mz
+  
+        layers = vis.selectAll("g.layer").data(data).enter().append("g").style("fill", (d, i) ->
+          color i / (n - 1)
+        ).attr("class", "layer")
+        bars = layers.selectAll("g.bar").data((d) ->
+          d
+        ).enter().append("g").attr("class", "bar").attr("transform", (d) ->
+          "translate(" + x(d) + ",0)"
+        )
+        bars.append("rect").attr("width", x(x: .9)).attr("x", 0).attr("y", height).attr("height", 0).transition().delay((d, i) ->
+          i * 10
+        ).attr("y", y1).attr "height", (d) ->
+          y0(d) - y1(d)
+  
+        labels = vis.selectAll("text.label").data(data[0]).enter().append("text").attr("class", "label").attr("x", x).attr("y", height + 6).attr("dx", x(x: .45)).attr("dy", ".71em").attr("text-anchor", "middle").text((d, i) ->
+          d.date
+        )
+        keyText = vis.selectAll("text.key").data(data).enter().append("text").attr("class", "key").attr("y", (d, i) ->
+          height + 42 + 30 * (i % 3)
+        ).attr("x", (d, i) ->
+          155 * Math.floor(i / 3) + 15
+        ).attr("dx", x(x: .45)).attr("dy", ".71em").attr("text-anchor", "left").text((d, i) ->
+          d[0].user
+        )
+        keySwatches = vis.selectAll("rect.swatch").data(data).enter().append("rect").attr("class", "swatch").attr("width", 20).attr("height", 20).style("fill", (d, i) ->
+          color i / (n - 1)
+        ).attr("y", (d, i) ->
+          height + 36 + 30 * (i % 3)
+        ).attr("x", (d, i) ->
+          155 * Math.floor(i / 3)
+        )
+        
+        # reset grouped state to false
+        scope.grouped = false
+        
+        # setup a watch on 'grouped' to switch between views
+        scope.$watch "grouped", (newVal, oldVal) ->
+          
+          # ignore first call which happens before we even have data from the Github API
+          return  if newVal is oldVal
+          if newVal
+            transitionGroup()
+          else
+            transitionStack()
+  */
+
 
 }).call(this);

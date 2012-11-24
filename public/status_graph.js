@@ -126,7 +126,8 @@
     };
 
     StatusGraph.prototype.svg = function() {
-      var bg_gradient, chart, gradient_defs, gradients, i, iters, self, _i, _j, _len, _ref, _results;
+      var bg_gradient, chart, gradient_defs, gradients, i, iters, _i, _j, _len, _ref, _results,
+        _this = this;
       chart = this.d3_parent.append('svg:svg');
       gradient_defs = chart.append("svg:defs");
       bg_gradient = gradient_defs.append("svg:linearGradient").attr("id", "bg_gradient").attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%").attr("spreadMethod", "pad");
@@ -148,17 +149,16 @@
       chart.attr("class", "chart").attr("height", this.chart_height);
       chart.attr("width", this.sizing.chart_width);
       chart.append("rect").attr("class", "bg").attr("width", this.sizing.chart_width).attr("height", this.chart_height).style("fill", "url(#bg_gradient)");
-      self = this;
       chart.selectAll("rect.repo-chart-bg").data(this.bar_data).enter().append("rect").attr("class", "bars").attr("y", function(d, i) {
-        return i * self.sizing.bar_height;
+        return i * _this.sizing.bar_height;
       }).attr("width", function(d) {
-        return self.scaler(d.score);
-      }).attr("height", self.sizing.bar_height).style("fill", function(d, i) {
+        return _this.scaler(d.score);
+      }).attr("height", this.sizing.bar_height).style("fill", function(d, i) {
         return "url(#gradient-" + d.score + ")";
       });
       return chart.selectAll("text").data(this.bar_data).enter().append("text").attr("x", 0).attr("y", function(d, i) {
-        return self.sizing.bar_height * i;
-      }).attr("dy", 10).attr("text-anchor", "left").attr("style", "font-size: " + self.text.font_size + "; font-family: Arial, sans-serif").attr("fill", self.text.color).text(function(d) {
+        return _this.sizing.bar_height * i;
+      }).attr("dy", 10).attr("text-anchor", "left").attr("style", "font-size: " + this.text.font_size + "; font-family: Arial, sans-serif").attr("fill", this.text.color).text(function(d) {
         return d.name;
       }).attr("transform", "translate(8,1)").attr("class", "labels");
     };
