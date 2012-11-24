@@ -33,10 +33,10 @@ h1 {
 .chart .bars {
   stroke: #ccf;
   fill: #ddddff;
-  transform: "translate(32,0)";
+  transform: "translate(32,0)"; /* not supported; do in code */
 }
 
 #repos {
-  width: 20%
+  width: 20%;
 }
 

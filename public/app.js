@@ -2,13 +2,44 @@
 (function() {
   "use strict";
 
-  var AppCtrl, RepoCtrl, d3DemoApp, makeChart;
+  var AppCtrl, RepoCtrl, d3DemoApp, interpolateColor, makeChart;
+
+  interpolateColor = function(minColor, maxColor, maxDepth, depth) {
+    var color, d2h, h2d, i, maxVal, minVal, nVal, val, _i;
+    d2h = function(d) {
+      return d.toString(16);
+    };
+    h2d = function(h) {
+      return parseInt(h, 16);
+    };
+    if (depth === 0) {
+      return minColor;
+    }
+    if (depth === maxDepth) {
+      return maxColor;
+    }
+    color = "#";
+    for (i = _i = 1; _i <= 6; i = _i += 2) {
+      minVal = new Number(h2d(minColor.substr(i, 2)));
+      maxVal = new Number(h2d(maxColor.substr(i, 2)));
+      nVal = minVal + (maxVal - minVal) * (depth / maxDepth);
+      val = d2h(Math.floor(nVal));
+      while (val.length < 2) {
+        val = "0" + val;
+      }
+      color += val;
+    }
+    return color;
+  };
 
   d3DemoApp = angular.module("d3DemoApp", []);
 
   makeChart = function(data) {
-    var bar_data, cat_data, cat_name, chart, chart_width, test, x_scaler;
+    var bar_data, bar_height, cat_data, cat_name, chart, chart_width, gradient_defs, gradient_start_color, gradient_stop_color, gradients, i, iters, test, x_scaler, _i, _len;
     chart_width = document.getElementById('repos').offsetWidth;
+    bar_height = 16;
+    gradient_start_color = "#e0c0e0";
+    gradient_stop_color = "#c0e0e0";
     console.log("Testing", test);
     x_scaler = d3.scale.linear().domain([0, 10]).range([0, chart_width]);
     bar_data = [];
@@ -24,18 +55,29 @@
     test = d3.select('.test').style("background-color");
     console.log('test chart', test);
     console.log("Chart data", bar_data);
-    chart = d3.select('#repos').append('svg').attr("class", "chart").attr("height", 15 * bar_data.length);
+    chart = d3.select('#repos').append('svg:svg');
+    gradient_defs = chart.append("svg:defs");
+    iters = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    gradients = [];
+    for (_i = 0, _len = iters.length; _i < _len; _i++) {
+      i = iters[_i];
+      console.log(i);
+      gradients[i] = gradient_defs.append("svg:linearGradient").attr("id", "gradient-" + i).attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%").attr("spreadMethod", "pad");
+      gradients[i].append("svg:stop").attr("offset", "0%").attr("stop-color", gradient_start_color).attr("stop-opacity", 1);
+      gradients[i].append("svg:stop").attr("offset", "100%").attr("stop-opacity", 1).attr("stop-color", gradient_stop_color);
+    }
+    chart.attr("class", "chart").attr("height", bar_height * bar_data.length);
     chart.attr("width", chart_width);
     chart.selectAll("rect.repo-chart-bg").data(bar_data).enter().append("rect").attr("class", "bars").attr("y", function(d, i) {
-      return i * 16;
+      return i * bar_height;
     }).attr("width", function(d) {
       return x_scaler(d.score);
-    }).attr("height", 16);
+    }).attr("height", bar_height).style("fill", "url(#gradient-0)");
     return chart.selectAll("text").data(bar_data).enter().append("text").attr("x", 0).attr("y", function(d, i) {
       return 16 * i;
     }).attr("dy", 10).attr("text-anchor", "left").attr("style", "font-size: 12; font-family: Arial, sans-serif").attr("fill", "#2020DD").text(function(d) {
       return d.name;
-    }).attr("transform", "translate(8,0)").attr("class", "labels");
+    }).attr("transform", "translate(8,1)").attr("class", "labels");
   };
 
   d3DemoApp.controller("RepoCtrl", RepoCtrl = function($scope, $http) {

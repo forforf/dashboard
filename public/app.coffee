@@ -1,13 +1,47 @@
 "use strict"
 
+#helpers
+#  choose depth (step) color between min and max, out of maxDepth steps
+interpolateColor = (minColor,maxColor,maxDepth,depth) ->
+    d2h = (d)-> return d.toString(16)
+    h2d = (h)-> return parseInt(h,16)
+   
+
+    if depth is 0
+      return minColor
+
+    if depth is maxDepth
+        return maxColor
+   
+    color = "#"
+   
+    for i in [1..6] by 2             #(var i=1; i <= 6; i+=2){
+        minVal = new Number(h2d(minColor.substr(i,2)))
+        maxVal = new Number(h2d(maxColor.substr(i,2)))
+        nVal = minVal + (maxVal-minVal) * (depth/maxDepth)
+        val = d2h(Math.floor(nVal))
+        while val.length < 2
+            val = "0"+val
+        
+        color += val
+    
+    return color
+
+
 # create module for custom directives
 d3DemoApp = angular.module("d3DemoApp", [])
 
 #Make the chart
 makeChart = (data) ->
-  #chart_width = d3.select('#repos').style("width") # 240
-  #used to get the raw pixels, so styling can be in em or %
+
+  ## chart configuration
+
+  #   width comes from computed style (can be set in css file)
   chart_width = document.getElementById('repos').offsetWidth;
+  bar_height = 16 #px
+  gradient_start_color = "#e0c0e0"
+  gradient_stop_color = "#c0e0e0"
+  
 
   console.log "Testing", test
 
@@ -27,20 +61,40 @@ makeChart = (data) ->
   console.log 'test chart', test
 
 
-# html
-#chart = d3.select("#repos").append("div").attr("class", "chart")
-
-#chart.selectAll("div")
-#  .data(bar_data)
-#  .enter().append("div")
-#  .style("width", (d) -> d.score*10 + "px")
-#  .text((d) -> d.name)
-
 # svg
   console.log "Chart data", bar_data
-  chart = d3.select('#repos').append('svg')
-    .attr("class", "chart")
-    .attr("height", 15*bar_data.length)
+  chart = d3.select('#repos').append('svg:svg')
+
+  gradient_defs = chart.append("svg:defs")
+  iters = [0..10]
+  gradients = []
+  for i in iters
+    console.log i
+
+    #gradients[i] = chart.append("svg:defs")
+    gradients[i] = gradient_defs.append("svg:linearGradient")
+        .attr("id", "gradient-#{i}")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+        .attr("spreadMethod", "pad")
+
+    #start color
+    gradients[i].append("svg:stop")
+      .attr("offset", "0%")
+      .attr("stop-color", gradient_start_color )
+      .attr("stop-opacity", 1)
+
+    #default stop
+    gradients[i].append("svg:stop")
+      .attr("offset", "100%")
+      .attr("stop-opacity", 1)
+      .attr("stop-color", gradient_stop_color)
+ 
+
+  chart.attr("class", "chart")
+    .attr("height", bar_height*bar_data.length)
   
   #sets the width, not strictly necessary, but helpful when reading the html
   chart.attr("width", chart_width)
@@ -51,9 +105,10 @@ makeChart = (data) ->
     .enter().append("rect")
       .attr("class", "bars")
       .attr("y", (d,i)-> 
-        return i*16 )
+        return i*bar_height )
       .attr("width", (d) -> x_scaler(d.score))
-      .attr("height", 16)
+      .attr("height", bar_height)
+      .style("fill","url(#gradient-0)")
       #.attr("transform", "translate(0,0)")
 
   chart.selectAll("text")
@@ -66,7 +121,7 @@ makeChart = (data) ->
       .attr("style", "font-size: 12; font-family: Arial, sans-serif")
       .attr("fill", "#2020DD")
       .text( (d) ->  d.name )
-      .attr("transform", "translate(8,0)")
+      .attr("transform", "translate(8,1)")
       .attr("class", "labels")
 
 #dashboard - repo controller
