@@ -1,5 +1,9 @@
 "use strict"
+root = exports ? this
 
+StatusGraph = root.StatusGraph
+console.log "SG", StatusGraph
+###
 #helpers
 #  choose depth (step) color between min and max, out of maxDepth steps
 interpolateColor = (minColor,maxColor,maxDepth,depth) ->
@@ -27,24 +31,31 @@ interpolateColor = (minColor,maxColor,maxDepth,depth) ->
     
     return color
 
-
+###
 # create module for custom directives
 d3DemoApp = angular.module("d3DemoApp", [])
 
-#Make the chart
-makeChart = (data) ->
 
+#Make the chart
+
+makeChart = (data) ->
+  chart = new StatusGraph(d3.select('#repos'), data)
+  chart.svg()
+
+###
   ## chart configuration
 
   #   width comes from computed style (can be set in css file)
   chart_width = document.getElementById('repos').offsetWidth;
   bar_height = 16 #px
-  gradient_start_color = "#e0c0e0"
-  gradient_stop_color = "#c0e0e0"
+  gradient_start_color = "#cc8282" 
+  gradient_stop_color = "#22ff22"  
+  bg_start_color = interpolateColor("#ffffff", gradient_start_color, 4,1)
+  bg_stop_color = interpolateColor("#ffffff", gradient_stop_color, 4,1)
   max_color_steps = 10
+  text_color = "#003300"
   
 
-  console.log "Testing", test
 
   #scale x
   x_scaler = d3.scale.linear()
@@ -67,6 +78,28 @@ makeChart = (data) ->
   chart = d3.select('#repos').append('svg:svg')
 
   gradient_defs = chart.append("svg:defs")
+  
+
+  bg_gradient = gradient_defs.append("svg:linearGradient")
+    .attr("id", "bg_gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
+    .attr("spreadMethod", "pad")
+
+  #start color
+  bg_gradient.append("svg:stop")
+    .attr("offset", "0%")
+    .attr("stop-color", bg_start_color)
+    .attr("stop-opacity", 1)
+
+  #default stop
+  bg_gradient.append("svg:stop")
+    .attr("offset", "100%")
+    .attr("stop-opacity", 1)
+    .attr("stop-color", bg_stop_color )
+
   iters = [0..max_color_steps]
   gradients = []
   for i in iters
@@ -74,12 +107,12 @@ makeChart = (data) ->
 
     #gradients[i] = chart.append("svg:defs")
     gradients[i] = gradient_defs.append("svg:linearGradient")
-        .attr("id", "gradient-#{i}")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "0%")
-        .attr("spreadMethod", "pad")
+      .attr("id", "gradient-#{i}")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "0%")
+      .attr("spreadMethod", "pad")
 
     #start color
     gradients[i].append("svg:stop")
@@ -99,6 +132,12 @@ makeChart = (data) ->
   
   #sets the width, not strictly necessary, but helpful when reading the html
   chart.attr("width", chart_width)
+
+  chart.append("rect")
+    .attr("class", "bg")
+    .attr("width", chart_width)
+    .attr("height", bar_height*bar_data.length)
+    .style("fill", "url(#bg_gradient)")
 
 
   chart.selectAll("rect.repo-chart-bg")
@@ -123,10 +162,11 @@ makeChart = (data) ->
       .attr("dy", 10)
       .attr("text-anchor", "left")
       .attr("style", "font-size: 12; font-family: Arial, sans-serif")
-      .attr("fill", "#2020DD")
+      .attr("fill", text_color)
       .text( (d) ->  d.name )
       .attr("transform", "translate(8,1)")
       .attr("class", "labels")
+###
 
 #dashboard - repo controller
 d3DemoApp.controller "RepoCtrl", RepoCtrl = ($scope, $http) ->

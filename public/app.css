@@ -21,10 +21,12 @@ h1 {
   color: red;
 }
 
+/*
 .chart {
   background-color: #eef;
   display: inline-block;
 }
+*/
 
 .chart.bg{
   fill: red;

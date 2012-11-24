@@ -2,92 +2,178 @@
 (function() {
   "use strict";
 
-  var AppCtrl, RepoCtrl, d3DemoApp, interpolateColor, makeChart;
+  var AppCtrl, RepoCtrl, StatusGraph, d3DemoApp, makeChart, root;
 
-  interpolateColor = function(minColor, maxColor, maxDepth, depth) {
-    var color, d2h, h2d, i, maxVal, minVal, nVal, val, _i;
-    d2h = function(d) {
-      return d.toString(16);
-    };
-    h2d = function(h) {
-      return parseInt(h, 16);
-    };
-    if (depth === 0) {
-      return minColor;
-    }
-    if (depth === maxDepth) {
-      return maxColor;
-    }
-    color = "#";
-    for (i = _i = 1; _i <= 6; i = _i += 2) {
-      minVal = new Number(h2d(minColor.substr(i, 2)));
-      maxVal = new Number(h2d(maxColor.substr(i, 2)));
-      nVal = minVal + (maxVal - minVal) * (depth / maxDepth);
-      val = d2h(Math.floor(nVal));
-      while (val.length < 2) {
-        val = "0" + val;
-      }
-      color += val;
-    }
-    return color;
-  };
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  StatusGraph = root.StatusGraph;
+
+  console.log("SG", StatusGraph);
+
+  /*
+  #helpers
+  #  choose depth (step) color between min and max, out of maxDepth steps
+  interpolateColor = (minColor,maxColor,maxDepth,depth) ->
+      d2h = (d)-> return d.toString(16)
+      h2d = (h)-> return parseInt(h,16)
+     
+  
+      if depth is 0
+        return minColor
+  
+      if depth is maxDepth
+          return maxColor
+     
+      color = "#"
+     
+      for i in [1..6] by 2             #(var i=1; i <= 6; i+=2){
+          minVal = new Number(h2d(minColor.substr(i,2)))
+          maxVal = new Number(h2d(maxColor.substr(i,2)))
+          nVal = minVal + (maxVal-minVal) * (depth/maxDepth)
+          val = d2h(Math.floor(nVal))
+          while val.length < 2
+              val = "0"+val
+          
+          color += val
+      
+      return color
+  */
+
 
   d3DemoApp = angular.module("d3DemoApp", []);
 
   makeChart = function(data) {
-    var bar_data, bar_height, cat_data, cat_name, chart, chart_width, gradient_defs, gradient_start_color, gradient_stop_color, gradients, i, iters, max_color_steps, test, x_scaler, _i, _j, _len, _results;
-    chart_width = document.getElementById('repos').offsetWidth;
-    bar_height = 16;
-    gradient_start_color = "#e0c0e0";
-    gradient_stop_color = "#c0e0e0";
-    max_color_steps = 10;
-    console.log("Testing", test);
-    x_scaler = d3.scale.linear().domain([0, 10]).range([0, chart_width]);
-    bar_data = [];
-    for (cat_name in data) {
-      cat_data = data[cat_name];
-      if (cat_data.score) {
-        bar_data.push({
-          name: cat_name,
-          score: cat_data.score
-        });
-      }
-    }
-    test = d3.select('.test').style("background-color");
-    console.log('test chart', test);
-    console.log("Chart data", bar_data);
-    chart = d3.select('#repos').append('svg:svg');
-    gradient_defs = chart.append("svg:defs");
-    iters = (function() {
-      _results = [];
-      for (var _i = 0; 0 <= max_color_steps ? _i <= max_color_steps : _i >= max_color_steps; 0 <= max_color_steps ? _i++ : _i--){ _results.push(_i); }
-      return _results;
-    }).apply(this);
-    gradients = [];
-    for (_j = 0, _len = iters.length; _j < _len; _j++) {
-      i = iters[_j];
-      console.log(i);
-      gradients[i] = gradient_defs.append("svg:linearGradient").attr("id", "gradient-" + i).attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%").attr("spreadMethod", "pad");
-      gradients[i].append("svg:stop").attr("offset", "0%").attr("stop-color", gradient_start_color).attr("stop-opacity", 1);
-      gradients[i].append("svg:stop").attr("offset", "100%").attr("stop-opacity", 1).attr("stop-color", interpolateColor(gradient_start_color, gradient_stop_color, max_color_steps, i));
-    }
-    chart.attr("class", "chart").attr("height", bar_height * bar_data.length);
-    chart.attr("width", chart_width);
-    chart.selectAll("rect.repo-chart-bg").data(bar_data).enter().append("rect").attr("class", "bars").attr("y", function(d, i) {
-      return i * bar_height;
-    }).attr("width", function(d) {
-      return x_scaler(d.score);
-    }).attr("height", bar_height).style("fill", function(d, i) {
-      console.log("fill-", d, i);
-      console.log("url(#gradient-" + d.score + ")");
-      return "url(#gradient-" + d.score + ")";
-    });
-    return chart.selectAll("text").data(bar_data).enter().append("text").attr("x", 0).attr("y", function(d, i) {
-      return 16 * i;
-    }).attr("dy", 10).attr("text-anchor", "left").attr("style", "font-size: 12; font-family: Arial, sans-serif").attr("fill", "#2020DD").text(function(d) {
-      return d.name;
-    }).attr("transform", "translate(8,1)").attr("class", "labels");
+    var chart;
+    chart = new StatusGraph(d3.select('#repos'), data);
+    return chart.svg();
   };
+
+  /*
+    ## chart configuration
+  
+    #   width comes from computed style (can be set in css file)
+    chart_width = document.getElementById('repos').offsetWidth;
+    bar_height = 16 #px
+    gradient_start_color = "#cc8282" 
+    gradient_stop_color = "#22ff22"  
+    bg_start_color = interpolateColor("#ffffff", gradient_start_color, 4,1)
+    bg_stop_color = interpolateColor("#ffffff", gradient_stop_color, 4,1)
+    max_color_steps = 10
+    text_color = "#003300"
+    
+  
+  
+    #scale x
+    x_scaler = d3.scale.linear()
+      .domain([0,10])
+      .range([0, chart_width])
+  
+    bar_data = []
+    for cat_name, cat_data of data
+      if cat_data.score
+        bar_data.push {name: cat_name, score: cat_data.score}
+  
+  
+    #test getting css attribute
+    test = d3.select('.test').style("background-color")
+    console.log 'test chart', test
+  
+  
+  # svg
+    console.log "Chart data", bar_data
+    chart = d3.select('#repos').append('svg:svg')
+  
+    gradient_defs = chart.append("svg:defs")
+    
+  
+    bg_gradient = gradient_defs.append("svg:linearGradient")
+      .attr("id", "bg_gradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "0%")
+      .attr("spreadMethod", "pad")
+  
+    #start color
+    bg_gradient.append("svg:stop")
+      .attr("offset", "0%")
+      .attr("stop-color", bg_start_color)
+      .attr("stop-opacity", 1)
+  
+    #default stop
+    bg_gradient.append("svg:stop")
+      .attr("offset", "100%")
+      .attr("stop-opacity", 1)
+      .attr("stop-color", bg_stop_color )
+  
+    iters = [0..max_color_steps]
+    gradients = []
+    for i in iters
+      console.log i
+  
+      #gradients[i] = chart.append("svg:defs")
+      gradients[i] = gradient_defs.append("svg:linearGradient")
+        .attr("id", "gradient-#{i}")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+        .attr("spreadMethod", "pad")
+  
+      #start color
+      gradients[i].append("svg:stop")
+        .attr("offset", "0%")
+        .attr("stop-color", gradient_start_color)
+        .attr("stop-opacity", 1)
+  
+      #default stop
+      gradients[i].append("svg:stop")
+        .attr("offset", "100%")
+        .attr("stop-opacity", 1)
+        .attr("stop-color", interpolateColor(gradient_start_color, gradient_stop_color, max_color_steps, i) )
+   
+  
+    chart.attr("class", "chart")
+      .attr("height", bar_height*bar_data.length)
+    
+    #sets the width, not strictly necessary, but helpful when reading the html
+    chart.attr("width", chart_width)
+  
+    chart.append("rect")
+      .attr("class", "bg")
+      .attr("width", chart_width)
+      .attr("height", bar_height*bar_data.length)
+      .style("fill", "url(#bg_gradient)")
+  
+  
+    chart.selectAll("rect.repo-chart-bg")
+      .data(bar_data)
+      .enter().append("rect")
+        .attr("class", "bars")
+        .attr("y", (d,i)-> 
+          return i*bar_height )
+        .attr("width", (d) -> x_scaler(d.score))
+        .attr("height", bar_height)
+        .style("fill", (d,i) -> 
+           console.log "fill-", d, i
+           console.log "url(#gradient-#{d.score})"
+           return "url(#gradient-#{d.score})")
+        #.attr("transform", "translate(0,0)")
+  
+    chart.selectAll("text")
+      .data(bar_data)
+      .enter().append("text")
+        .attr("x", 0)
+        .attr("y", (d,i) -> 16*i)
+        .attr("dy", 10)
+        .attr("text-anchor", "left")
+        .attr("style", "font-size: 12; font-family: Arial, sans-serif")
+        .attr("fill", text_color)
+        .text( (d) ->  d.name )
+        .attr("transform", "translate(8,1)")
+        .attr("class", "labels")
+  */
+
 
   d3DemoApp.controller("RepoCtrl", RepoCtrl = function($scope, $http) {
     var repo;
