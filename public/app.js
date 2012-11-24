@@ -35,11 +35,12 @@
   d3DemoApp = angular.module("d3DemoApp", []);
 
   makeChart = function(data) {
-    var bar_data, bar_height, cat_data, cat_name, chart, chart_width, gradient_defs, gradient_start_color, gradient_stop_color, gradients, i, iters, test, x_scaler, _i, _len;
+    var bar_data, bar_height, cat_data, cat_name, chart, chart_width, gradient_defs, gradient_start_color, gradient_stop_color, gradients, i, iters, max_color_steps, test, x_scaler, _i, _j, _len, _results;
     chart_width = document.getElementById('repos').offsetWidth;
     bar_height = 16;
     gradient_start_color = "#e0c0e0";
     gradient_stop_color = "#c0e0e0";
+    max_color_steps = 10;
     console.log("Testing", test);
     x_scaler = d3.scale.linear().domain([0, 10]).range([0, chart_width]);
     bar_data = [];
@@ -57,14 +58,18 @@
     console.log("Chart data", bar_data);
     chart = d3.select('#repos').append('svg:svg');
     gradient_defs = chart.append("svg:defs");
-    iters = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    iters = (function() {
+      _results = [];
+      for (var _i = 0; 0 <= max_color_steps ? _i <= max_color_steps : _i >= max_color_steps; 0 <= max_color_steps ? _i++ : _i--){ _results.push(_i); }
+      return _results;
+    }).apply(this);
     gradients = [];
-    for (_i = 0, _len = iters.length; _i < _len; _i++) {
-      i = iters[_i];
+    for (_j = 0, _len = iters.length; _j < _len; _j++) {
+      i = iters[_j];
       console.log(i);
       gradients[i] = gradient_defs.append("svg:linearGradient").attr("id", "gradient-" + i).attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%").attr("spreadMethod", "pad");
       gradients[i].append("svg:stop").attr("offset", "0%").attr("stop-color", gradient_start_color).attr("stop-opacity", 1);
-      gradients[i].append("svg:stop").attr("offset", "100%").attr("stop-opacity", 1).attr("stop-color", gradient_stop_color);
+      gradients[i].append("svg:stop").attr("offset", "100%").attr("stop-opacity", 1).attr("stop-color", interpolateColor(gradient_start_color, gradient_stop_color, max_color_steps, i));
     }
     chart.attr("class", "chart").attr("height", bar_height * bar_data.length);
     chart.attr("width", chart_width);
@@ -72,7 +77,11 @@
       return i * bar_height;
     }).attr("width", function(d) {
       return x_scaler(d.score);
-    }).attr("height", bar_height).style("fill", "url(#gradient-0)");
+    }).attr("height", bar_height).style("fill", function(d, i) {
+      console.log("fill-", d, i);
+      console.log("url(#gradient-" + d.score + ")");
+      return "url(#gradient-" + d.score + ")";
+    });
     return chart.selectAll("text").data(bar_data).enter().append("text").attr("x", 0).attr("y", function(d, i) {
       return 16 * i;
     }).attr("dy", 10).attr("text-anchor", "left").attr("style", "font-size: 12; font-family: Arial, sans-serif").attr("fill", "#2020DD").text(function(d) {

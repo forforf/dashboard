@@ -41,6 +41,7 @@ makeChart = (data) ->
   bar_height = 16 #px
   gradient_start_color = "#e0c0e0"
   gradient_stop_color = "#c0e0e0"
+  max_color_steps = 10
   
 
   console.log "Testing", test
@@ -66,7 +67,7 @@ makeChart = (data) ->
   chart = d3.select('#repos').append('svg:svg')
 
   gradient_defs = chart.append("svg:defs")
-  iters = [0..10]
+  iters = [0..max_color_steps]
   gradients = []
   for i in iters
     console.log i
@@ -83,14 +84,14 @@ makeChart = (data) ->
     #start color
     gradients[i].append("svg:stop")
       .attr("offset", "0%")
-      .attr("stop-color", gradient_start_color )
+      .attr("stop-color", gradient_start_color)
       .attr("stop-opacity", 1)
 
     #default stop
     gradients[i].append("svg:stop")
       .attr("offset", "100%")
       .attr("stop-opacity", 1)
-      .attr("stop-color", gradient_stop_color)
+      .attr("stop-color", interpolateColor(gradient_start_color, gradient_stop_color, max_color_steps, i) )
  
 
   chart.attr("class", "chart")
@@ -108,7 +109,10 @@ makeChart = (data) ->
         return i*bar_height )
       .attr("width", (d) -> x_scaler(d.score))
       .attr("height", bar_height)
-      .style("fill","url(#gradient-0)")
+      .style("fill", (d,i) -> 
+         console.log "fill-", d, i
+         console.log "url(#gradient-#{d.score})"
+         return "url(#gradient-#{d.score})")
       #.attr("transform", "translate(0,0)")
 
   chart.selectAll("text")
