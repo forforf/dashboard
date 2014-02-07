@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="bower_components/underscore/underscore-min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/github-repo-fetcher/github-repo-fetcher.js"></script>
+    <script src="bower_components/repo-fetcher-ratings/repo-fetcher-ratings.js"></script>
+    <script src="dashbaord.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js"></script>
+  </head>
+
+  <body>
+    <div ng-controller="RepoCtrl">
+      Hello {{name}}
+
+      <ul> Github Repos
+        <li ng-repeat="repo in selectedRepos">
+          <repo-graph class="chart" repo="repo"><repo-graph>
+            <repo-ratings repo="repo"></repo-ratings>
+        </li>
+      </ul>
+      <div id="test">-------------</div>
+
+    </div>
+  </body>
+</html>

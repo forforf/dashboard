@@ -1,0 +1,19 @@
+ul.repo-ratings{
+    font-size: 1em;
+}
+li.repo-ratings{
+    font-size: 0.8em;
+}
+a.repo-ratings:hover{
+    font-size: 1.2em;
+}
+
+.chart rect {
+    fill: #f3e3d3;
+}
+
+.chart text {
+    fill: black;
+    font: 10px sans-serif;
+    text-anchor: start;
+}

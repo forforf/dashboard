@@ -1,0 +1,30 @@
+{
+  "name": "dashboard",
+  "main": "dashboard.js",
+  "version": "0.0.1",
+  "homepage": "https://github.com/forforf/dashboard",
+  "authors": [
+    "David Martin <dmarti21@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/forforf/dashboard.git"
+  },
+  "description": "Show github status including custom repo ratings (see github-repo-fetcher and repo-fetcher-ratings)",
+  "dependencies":{
+    "angular": "latest",
+    "underscore": "1.5.2",
+    "repo-fetcher-ratings": "git://github.com/forforf/repo-fetcher-ratings.git"
+  },
+  "devDependencies": {
+    "angular-mocks":"latest"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
