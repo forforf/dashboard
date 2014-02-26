@@ -1,0 +1,11 @@
+---
+ratings:
+  stable: 2
+  useful: 2
+  caliber: 5
+  tidy: 6
+  tended: 1
+  tests: 1
+  unique: 4
+progress:
+  inactive: superseded
